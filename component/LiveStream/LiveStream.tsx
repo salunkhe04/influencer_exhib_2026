@@ -1,10 +1,17 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import styles from "./LiveStream.module.css";
 import { useSearchParams } from "next/navigation";
 import { FaPlay, FaPause } from "react-icons/fa";
 
-export default function LiveStream() {
+export default function LiveStreamWrapper() {
+  return (
+    <Suspense fallback={<p>loading</p>}>
+      <LiveStream />
+    </Suspense>
+  );
+}
+export function LiveStream() {
   const searchParams = useSearchParams();
   const videoRef = useRef<HTMLVideoElement>(null);
 
