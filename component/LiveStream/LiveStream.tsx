@@ -1,10 +1,16 @@
 "use client";
 import { useState, useEffect, useRef, Suspense } from "react";
-import React from "react"
+import React from "react";
 
 import styles from "./LiveStream.module.css";
 import { useSearchParams } from "next/navigation";
-import { FaPlay, FaPause, FaVolumeUp, FaExpand, FaCompress } from "react-icons/fa";
+import {
+  FaPlay,
+  FaPause,
+  FaVolumeUp,
+  FaExpand,
+  FaCompress,
+} from "react-icons/fa";
 import Hls from "hls.js";
 
 export default function LiveStreamWrapper() {
@@ -30,9 +36,7 @@ export function LiveStream() {
   const [duration, setDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const videoUrl =
-    searchParams.get("video") ??
-    "https://cdn.evhomes.tech/hls/sakshi_invite/master.m3u8";
+  const videoUrl = searchParams.get("video");
 
   const isTouchDevice =
     typeof window !== "undefined" &&
@@ -41,6 +45,7 @@ export function LiveStream() {
   // ── HLS init ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const video = videoRef.current;
+    if (!videoUrl) return;
     if (!video) return;
 
     setIsLoading(true);
@@ -219,7 +224,8 @@ export function LiveStream() {
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isCurrentlyFullscreen =
-        !!document.fullscreenElement || !!(document as any).webkitFullscreenElement;
+        !!document.fullscreenElement ||
+        !!(document as any).webkitFullscreenElement;
       setIsFullscreen(isCurrentlyFullscreen);
     };
 
@@ -228,7 +234,10 @@ export function LiveStream() {
 
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange,
+      );
     };
   }, []);
 
@@ -253,7 +262,8 @@ export function LiveStream() {
       userStartedRef.current = true;
 
       const alreadyFullscreen =
-        !!document.fullscreenElement || !!(document as any).webkitFullscreenElement;
+        !!document.fullscreenElement ||
+        !!(document as any).webkitFullscreenElement;
 
       if (!alreadyFullscreen) {
         goFullscreen();
@@ -287,7 +297,7 @@ export function LiveStream() {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
@@ -297,7 +307,7 @@ export function LiveStream() {
   // ── Render ───────────────────────────────────────────────────────────────
   const showButton =
     !isPlaying || (!isTouchDevice && isHovered) || showControls;
-
+  if (!videoUrl) return <p>"invalid url"</p>;
   return (
     <main
       ref={containerRef}
@@ -311,7 +321,6 @@ export function LiveStream() {
         className={styles.backgroundVideo}
         loop
         playsInline
-        
         onClick={togglePlay}
       />
 
