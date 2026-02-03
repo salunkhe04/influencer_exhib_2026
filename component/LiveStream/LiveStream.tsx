@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect, useRef, Suspense } from "react";
+import React from "react"
+
 import styles from "./LiveStream.module.css";
 import { useSearchParams } from "next/navigation";
-import { FaPlay, FaPause } from "react-icons/fa";
+import { FaPlay, FaPause, FaVolumeUp, FaExpand, FaCompress } from "react-icons/fa";
 import Hls from "hls.js";
 
 export default function LiveStreamWrapper() {
@@ -24,6 +26,9 @@ export function LiveStream() {
   const [isLoading, setIsLoading] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const videoUrl =
     searchParams.get("video") ??
@@ -61,10 +66,7 @@ export function LiveStream() {
       maxBufferHole: 0.5,
       enableWorker: true,
       lowLatencyMode: true,
-      // liveSync: 3,
       liveSyncDurationCount: 3,
-      // maxManifestRetries: 10,
-      // manifestLoadingMaxRetries: 5,
     });
 
     hls.attachMedia(video);
@@ -121,12 +123,22 @@ export function LiveStream() {
       }
     };
 
+    const onTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+    };
+
+    const onLoadedMetadata = () => {
+      setDuration(video.duration);
+    };
+
     video.addEventListener("canplay", onCanPlay);
     video.addEventListener("canplaythrough", onCanPlayThrough);
     video.addEventListener("loadeddata", onLoadedData);
     video.addEventListener("play", onPlay);
     video.addEventListener("pause", onPause);
     video.addEventListener("waiting", onWaiting);
+    video.addEventListener("timeupdate", onTimeUpdate);
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
 
     return () => {
       video.removeEventListener("canplay", onCanPlay);
@@ -135,6 +147,8 @@ export function LiveStream() {
       video.removeEventListener("play", onPlay);
       video.removeEventListener("pause", onPause);
       video.removeEventListener("waiting", onWaiting);
+      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
   }, [isTouchDevice]);
 
@@ -173,8 +187,6 @@ export function LiveStream() {
   }, []);
 
   // ── Fullscreen ───────────────────────────────────────────────────────────
-  // iOS: only <video>.webkitEnterFullscreen exists. It takes over the screen
-  // with the native player so safe-area is handled automatically.
   const enterFullscreenIOS = async () => {
     const video = videoRef.current;
     if (!video) return;
@@ -185,8 +197,6 @@ export function LiveStream() {
     }
   };
 
-  // Android / desktop: fullscreen the CONTAINER (not <video>) so that our
-  // overlay controls and safe-area CSS both render inside fullscreen.
   const enterFullscreenContainer = async () => {
     const container = containerRef.current;
     if (!container) return;
@@ -205,9 +215,24 @@ export function LiveStream() {
     }
   };
 
+  // ── Fullscreen state tracking ──────────────────────────────────────────────
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen =
+        !!document.fullscreenElement || !!(document as any).webkitFullscreenElement;
+      setIsFullscreen(isCurrentlyFullscreen);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
   const goFullscreen = () => {
-    // iOS detection: video has webkitEnterFullscreen but document doesn't have
-    // the standard requestFullscreen at all
     const isIOS =
       typeof (videoRef.current as any)?.webkitEnterFullscreen === "function" &&
       typeof document.documentElement.requestFullscreen !== "function";
@@ -227,8 +252,6 @@ export function LiveStream() {
     if (video.paused) {
       userStartedRef.current = true;
 
-      // first press: go fullscreen then play.
-      // if already fullscreen (e.g. resumed after pause) just play.
       const alreadyFullscreen =
         !!document.fullscreenElement || !!(document as any).webkitFullscreenElement;
 
@@ -251,6 +274,26 @@ export function LiveStream() {
     }
   };
 
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const video = videoRef.current;
+    if (!video) return;
+    const newTime = parseFloat(e.target.value);
+    video.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const formatTime = (seconds: number) => {
+    if (!seconds || !Number.isFinite(seconds)) return "0:00";
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+  };
+
   // ── Render ───────────────────────────────────────────────────────────────
   const showButton =
     !isPlaying || (!isTouchDevice && isHovered) || showControls;
@@ -268,6 +311,7 @@ export function LiveStream() {
         className={styles.backgroundVideo}
         loop
         playsInline
+        
         onClick={togglePlay}
       />
 
@@ -283,6 +327,48 @@ export function LiveStream() {
         <button className={styles.centerControl} onClick={togglePlay}>
           {isPlaying ? <FaPause /> : <FaPlay />}
         </button>
+      )}
+
+      {/* Custom Controls Bar */}
+      {(showControls || !isPlaying || !isTouchDevice) && (
+        <div className={styles.controlsBar}>
+          <input
+            type="range"
+            min="0"
+            max={duration || 0}
+            value={currentTime}
+            onChange={handleSeek}
+            className={styles.progressSlider}
+            style={{
+              background: `linear-gradient(to right, #ef4444 0%, #ef4444 ${
+                duration ? (currentTime / duration) * 100 : 0
+              }%, rgba(255,255,255,0.3) ${
+                duration ? (currentTime / duration) * 100 : 0
+              }%, rgba(255,255,255,0.3) 100%)`,
+            }}
+          />
+          <div className={styles.controls}>
+            <button
+              className={styles.controlBtn}
+              onClick={togglePlay}
+              aria-label={isPlaying ? "Pause" : "Play"}
+            >
+              {isPlaying ? <FaPause size={16} /> : <FaPlay size={16} />}
+            </button>
+
+            <span className={styles.timeDisplay}>
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+
+            <button
+              className={styles.controlBtn}
+              onClick={goFullscreen}
+              aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            >
+              {isFullscreen ? <FaCompress size={16} /> : <FaExpand size={16} />}
+            </button>
+          </div>
+        </div>
       )}
 
       <div className={styles.bottomGradient} />
