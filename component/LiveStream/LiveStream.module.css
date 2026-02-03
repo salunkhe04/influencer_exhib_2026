@@ -1,0 +1,727 @@
+/* Main Container */
+.container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #1a1a1a;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.backgroundVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* lightened overlay for brighter appearance */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+}
+
+/* ... existing hearts animation ... */
+.heartsLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+
+@keyframes heartFloat {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.4) rotate(-15deg);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(0, -120px) scale(1) rotate(15deg);
+  }
+}
+
+.floatingHeart {
+  position: fixed;
+  font-size: 3rem;
+  pointer-events: none;
+  animation: heartFloat 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* ... existing header ... */
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+  /* background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent); */
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.liveBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ff1744, #d32f2f);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.liveDot {
+  width: 0.4rem;
+  height: 0.4rem;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.liveBadgeText {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.headerTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.shareButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.shareButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ... existing viewers count ... */
+.viewersCount {
+  position: absolute;
+  top: 1.0rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  padding: 0.6rem 1rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 30;
+}
+
+.viewersIcon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: #fff;
+}
+
+.viewersText {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ... existing like count ... */
+.likeCount {
+  position: absolute;
+  top: 8rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.233);
+  backdrop-filter: blur(10px);
+  padding: 0.8rem 1.2rem;
+  border-radius: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 30;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.likeCount:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.likeEmoji {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.likeText {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Members panel redesigned for left sidebar on desktop, mobile hidden */
+.membersPanel {
+  position: fixed;
+  left: -320px;
+  top: 0;
+  width: 320px;
+  height: 100vh;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transition: left 0.3s ease;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.membersPanel.panelOpen {
+  left: 0;
+}
+
+.membersPanel.panelClosed {
+  left: -320px;
+}
+
+.formWrapper {
+  padding: 1rem;
+}
+
+.userForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formLabel {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+  backdrop-filter: blur(10px);
+  transition: border 0.2s, background 0.2s;
+}
+
+.formInput:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.formSubmit {
+  margin-top: 0.5rem;
+  padding: 0.8rem;
+  background: linear-gradient(135deg, #6a5cff, #5744c2);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  /* box-shadow: 0 4px 12px rgba(106, 92, 255, 0.4); */
+  transition: transform 0.2s, box-shadow 0.2s;
+
+}
+
+/* Mobile: panel should slide from bottom */
+@media (max-width: 768px) {
+  .membersPanel {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    top: auto;
+    right: 0;
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+    transition: bottom 0.3s ease;
+  }
+
+  .membersPanel.panelOpen {
+    bottom: 0;
+  }
+
+  .membersPanel.panelClosed {
+    bottom: -100%;
+  }
+}
+
+.membersPanelHeader {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  /* margin-top: 70px; */
+}
+
+.membersPanelTitle {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.collapseButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.collapseButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.membersList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.membersList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.membersList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.membersList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.memberItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+  animation: slideIn 0.3s ease-out;
+}
+
+.memberItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.memberEmoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.memberName {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.memberTime {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Enhanced Toast Notifications - Modern Premium Design */
+
+/* <CHANGE> Improved toast container with better positioning and spacing */
+.toastContainer {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+  max-width: 90%;
+}
+
+/* <CHANGE> Premium toast with gradient border, enhanced backdrop, and improved shadows */
+.toast {
+  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95), rgba(20, 20, 30, 0.9));
+  backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  padding: 0.9rem 1.4rem;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  animation: toastSlide 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* <CHANGE> Added gradient accent border effect for fake toasts */
+.toast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100, 200, 255, 0.6),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* <CHANGE> Accent glow for fake/real-time toasts */
+.toast.fakeToast {
+  border-color: rgba(100, 200, 255, 0.25);
+  background: linear-gradient(135deg, rgba(15, 15, 15, 0.98), rgba(20, 25, 40, 0.95));
+}
+
+.toast.fakeToast::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100, 200, 255, 0.8),
+    transparent
+  );
+}
+
+.toast.fakeToast {
+  box-shadow: 
+    0 8px 32px rgba(100, 200, 255, 0.15),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.15),
+    inset -1px -1px 0 rgba(100, 200, 255, 0.1);
+}
+
+/* <CHANGE> Hover effect for better interactivity */
+.toast:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* <CHANGE> Enhanced slide animation with scale effect */
+@keyframes toastSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* <CHANGE> Styled emoji with pulse effect and glow */
+.toastEmoji {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(100, 200, 255, 0.1);
+  animation: emojiPulse 2s ease-in-out infinite;
+}
+
+/* <CHANGE> Subtle pulse animation for emoji */
+@keyframes emojiPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/* <CHANGE> Enhanced text styling with better typography */
+.toastText {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #ffffff, rgba(200, 220, 255, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* <CHANGE> Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .toastContainer {
+    bottom: 60px;
+    gap: 0.5rem;
+  }
+
+  .toast {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.85rem;
+  }
+
+  .toastEmoji {
+    width: 1.3rem;
+    height: 1.3rem;
+    font-size: 0.95rem;
+  }
+
+  .toastText {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .toastContainer {
+    bottom: 50px;
+    gap: 0.4rem;
+    max-width: 85%;
+  }
+
+  .toast {
+    padding: 0.7rem 1rem;
+    border-radius: 24px;
+  }
+
+  .toastEmoji {
+    width: 1.2rem;
+    height: 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .toastText {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+}
+
+/* Open panel button for mobile */
+.openPanelButton {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  color: white;
+  width: 6rem;
+  height: 3rem;
+
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  z-index: 26;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+
+}
+
+.openPanelButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.Knowmore {
+  white-space: nowrap;
+}
+
+/* .openPanelButton:hover {
+  background: rgba(255, 107, 107, 1);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.5);
+} */
+
+@media (max-width: 768px) {
+  .openPanelButton {
+    display: flex;
+    width: 5.5rem;
+  }
+}
+
+/* Bottom Gradient */
+.bottomGradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8rem;
+  /* background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent); */
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0.75rem;
+  }
+
+  .headerTitle {
+    max-width: 100px;
+    font-size: 0.8rem;
+  }
+
+  .liveBadgeText {
+    font-size: 0.6rem;
+  }
+
+  .viewersCount {
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .likeCount {
+    top: 7rem;
+    right: 1rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .likeEmoji {
+    font-size: 1.4rem;
+  }
+
+  .membersPanelHeader {
+    padding: 0.75rem 1rem;
+  }
+
+  .membersPanelTitle {
+    font-size: 0.85rem;
+  }
+
+  .collapseButton {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .toastContainer {
+    bottom: 50px;
+  }
+}
+.centerControl {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  border-radius: 50%;
+  padding: 20px;
+  cursor: pointer;
+
+  color: white;
+  font-size: 25px;
+
+  backdrop-filter: blur(6px);
+  transition: 0.25s ease;
+}
+
+.centerControl:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
