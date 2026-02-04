@@ -241,14 +241,39 @@ export function LiveStream() {
     };
   }, []);
 
-  const goFullscreen = () => {
+  const goFullscreen = async () => {
     const isIOS =
       typeof (videoRef.current as any)?.webkitEnterFullscreen === "function" &&
       typeof document.documentElement.requestFullscreen !== "function";
 
     if (isIOS) {
       enterFullscreenIOS();
+    } 
+   // Check if we are currently in fullscreen
+    const isCurrentlyFullscreen = !!(
+      document.fullscreenElement || 
+      (document as any).webkitFullscreenElement || 
+      (document as any).mozFullScreenElement ||
+      (document as any).msFullscreenElement
+    );
+
+    if (isCurrentlyFullscreen) {
+      // EXIT Fullscreen
+      try {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen();
+        }
+      } catch (error) {
+        console.error("Error attempting to exit full-screen mode:", error);
+      }
     } else {
+      // ENTER Fullscreen
       enterFullscreenContainer();
     }
   };
